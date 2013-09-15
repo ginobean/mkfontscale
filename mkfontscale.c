@@ -100,6 +100,9 @@ static int readFontScale(HashTablePtr entries, char *dirname);
 ListPtr makeXLFD(char *filename, FT_Face face, int);
 static int readEncodings(ListPtr encodings, char *dirname);
 
+static char * make_safer_name(char * s);
+
+
 static FT_Library ft_library;
 static float bigEncodingFuzz = 0.02;
 
@@ -332,6 +335,7 @@ getName(FT_Face face, int nid)
                 string[i] = name.string[2 * i + 1];
         }
         string[i] = '\0';
+
         return string;
     }
 
@@ -501,6 +505,24 @@ safe(const char* s)
     return t;
 }
 
+
+static char *
+make_safer_name(char * s)
+{
+    int i = 0;
+
+    while (s[i]) {
+        if ( s[i] == ' ') {
+            s[i] = '_';
+        }
+        i++;
+    }
+
+    return s;
+}
+
+
+
 ListPtr
 makeXLFD(char *filename, FT_Face face, int isBitmap)
 {
@@ -535,11 +557,11 @@ makeXLFD(char *filename, FT_Face face, int isBitmap)
         t1info = NULL;
 
     if(!family)
-        family = getName(face, TT_NAME_ID_FONT_FAMILY);
+        family = make_safer_name(getName(face, TT_NAME_ID_FONT_FAMILY));
     if(!family)
-        family = getName(face, TT_NAME_ID_FULL_NAME);
+        family = make_safer_name(getName(face, TT_NAME_ID_FULL_NAME));
     if(!family)
-        family = getName(face, TT_NAME_ID_PS_NAME);
+        family = make_safer_name(getName(face, TT_NAME_ID_PS_NAME));
 
     if(!full_name)
         full_name = getName(face, TT_NAME_ID_FULL_NAME);
